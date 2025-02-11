@@ -1,30 +1,21 @@
-# Ignora todos los archivos por defecto
+# Ignora todo por defecto
 *
 
-# Excepciones (no ignorar)
-## Archivos Python
-!*.py
-
-## Entorno virtual (carpeta 'venv')
+# Excepciones: Carpetas (necesitan un archivo para ser trackeadas)
+!data/
+!models/
+!src/
 !venv/
 
-## Archivos esenciales (README, requirements, .gitignore)
+# Excepciones: Tipos de archivos específicos
+!*.py
 !.gitignore
 !README.md
 !requirements.txt
 
-# Ignora subcarpetas y sus contenidos (excepto 'venv')
-**/
-!venv/
-
-# Ignora archivos específicos comunes en proyectos Python
-*.pyc
-*.pyo
-*.pyd
-__pycache__
-*.egg-info
-*.log
-*.sqlite
-*.csv
-*.pkl
-*.h5
+# Ignora archivos dentro de carpetas (excepto los permitidos)
+**/*  # Ignora todo dentro de las subcarpetas
+!*/   # Permite las carpetas (pero no su contenido)
+!data/**/*.csv  # Ejemplo: Permitir archivos CSV en data/
+!models/**/*.pkl
+!src/**/*.py
