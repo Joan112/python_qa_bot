@@ -1,21 +1,29 @@
-# Ignora todo por defecto
+# Ignorar todo por defecto
 *
 
-# Excepciones: Carpetas (necesitan un archivo para ser trackeadas)
+# --- Excluir carpetas principales ---
 !data/
 !models/
 !src/
 !venv/
 
-# Excepciones: Tipos de archivos específicos
+# --- Excluir tipos de archivos clave ---
 !*.py
+!*.md
+!*.txt
 !.gitignore
-!README.md
-!requirements.txt
 
-# Ignora archivos dentro de carpetas (excepto los permitidos)
-**/*  # Ignora todo dentro de las subcarpetas
-!*/   # Permite las carpetas (pero no su contenido)
-!data/**/*.csv  # Ejemplo: Permitir archivos CSV en data/
-!models/**/*.pkl
-!src/**/*.py
+# --- Permitir archivos específicos en data/ ---
+!data/*.csv   # ✅ Permite CSV directamente en data/
+!data/*.pkl
+
+# --- Permitir archivos en subcarpetas ---
+!models/*.pkl
+!models/*.h5
+!src/*.py
+
+# --- Ignorar archivos no deseados ---
+__pycache__/
+*.pyc
+*.log
+.DS_Store
