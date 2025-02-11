@@ -1,0 +1,30 @@
+# Ignora todos los archivos por defecto
+*
+
+# Excepciones (no ignorar)
+## Archivos Python
+!*.py
+
+## Entorno virtual (carpeta 'venv')
+!venv/
+
+## Archivos esenciales (README, requirements, .gitignore)
+!.gitignore
+!README.md
+!requirements.txt
+
+# Ignora subcarpetas y sus contenidos (excepto 'venv')
+**/
+!venv/
+
+# Ignora archivos específicos comunes en proyectos Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__
+*.egg-info
+*.log
+*.sqlite
+*.csv
+*.pkl
+*.h5
