@@ -4,7 +4,12 @@ from sklearn.model_selection import train_test_split
 import joblib
 
 # Cargar datos
-df = pd.read_csv("data/python_qa_dataset.csv")
+# df = pd.read_csv("data/python_qa_dataset.csv")
+try:
+    df = pd.read_csv("data/entrenamiento.csv")
+    # df = pd.read_csv("data/python_qa_dataset.csv")
+except pd.errors.ParserError as e:
+    print(f"Error al leer el archivo CSV: {e}")
 
 # Vectorizar preguntas
 vectorizer = TfidfVectorizer(stop_words="english")
