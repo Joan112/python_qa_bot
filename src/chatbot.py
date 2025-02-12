@@ -1,27 +1,46 @@
 import joblib
 import pandas as pd
 import re
-from textwrap import wrap
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 class PythonQABot:
-    def __init__(self):
-        self.df = pd.read_pickle("data/processed_data.pkl")
-        self.vectorizer = joblib.load("models/vectorizer.pkl")
-        self.model = joblib.load("models/qa_model.pkl")
-        self.df["keywords"] = self.df["pregunta"].apply(self._preprocess_text)
+    def __init__(
+        self,
+        data_path="data/processed_data.pkl",
+        vectorizer_path="models/vectorizer.pkl",
+        model_path="models/qa_model.pkl",
+    ):
+
+        try:
+            self.df = pd.read_pickle(data_path)
+            self.vectorizer = joblib.load(vectorizer_path)
+            self.model = joblib.load(model_path)
+            self._preprocess_data()  # <-- Método modificado
+        except FileNotFoundError as e:
+            raise RuntimeError(f"Error loading model files: {str(e)}")
+        except Exception as e:
+            raise RuntimeError(f"Initialization error: {str(e)}")
+
+    def _preprocess_data(self):
+        """Preprocesamiento inicial del dataset"""
+        self.df["keywords"] = self.df["pregunta"].apply(
+            lambda x: set(
+                re.sub(r"[^\w\s]", "", x.lower()).split()
+            )  # <-- Paréntesis cerrado
+        )
 
     def _preprocess_text(self, text):
-        text = re.sub(r"[^\w\s]", "", text.lower())
-        return set(text.split())
+        """Limpieza de texto para queries"""
+        return set(re.sub(r"[^\w\s]", "", text.lower()).split())
 
     def _find_keyword_match(self, query):
+        """Búsqueda por coincidencia de palabras clave"""
         query_keywords = self._preprocess_text(query)
         best_match = None
         max_score = 0
 
-        for idx, row in self.df.iterrows():
+        for _, row in self.df.iterrows():
             score = len(query_keywords & row["keywords"])
             if score > max_score:
                 max_score = score
@@ -29,47 +48,28 @@ class PythonQABot:
         return best_match if max_score > 0 else None
 
     def ask(self, question):
+        """
+        Método principal para obtener respuestas
+        Args:
+            question (str): Pregunta del usuario
+        Returns:
+            str: Respuesta del bot
+        """
+        if not isinstance(question, str) or len(question.strip()) == 0:
+            raise ValueError("Invalid question format")
+
+        # Primera búsqueda por keywords
         keyword_answer = self._find_keyword_match(question)
         if keyword_answer:
             return keyword_answer
 
-        question_vec = self.vectorizer.transform([question])
-        _, indices = self.model.kneighbors(question_vec)
-        return self.df.iloc[indices[0][0]]["respuesta"]
-
-
-def format_response_box(answer, width=60):
-    lines = answer.split("\n")
-    wrapped_lines = []
-    for line in lines:
-        wrapped_lines.extend(wrap(line, width=width - 4))
-
-    max_length = max(len(line) for line in wrapped_lines)
-    border = "╭" + "─" * (max_length + 2) + "╮"
-    bottom_border = "╰" + "─" * (max_length + 2) + "╯"
-
-    box = [border]
-    box.append(f'│ {"Bot":^{max_length}} │')
-    box.append("├" + "─" * (max_length + 2) + "┤")
-
-    for line in wrapped_lines:
-        box.append(f"│ {line.ljust(max_length)} │")
-
-    box.append(bottom_border)
-    return "\n".join(box)
-
-
-if __name__ == "__main__":
-    bot = PythonQABot()
-    print("Bot de Python - Escribe 'salir' para terminar\n")
-
-    while True:
-        user_input = input("\nTú: ").strip()
-        if user_input.lower() == "salir":
-            break
-
-        respuesta = bot.ask(user_input)
-        print(f"\n{format_response_box(respuesta)}")
+        # Búsqueda por similitud semántica
+        try:
+            question_vec = self.vectorizer.transform([question])
+            _, indices = self.model.kneighbors(question_vec)
+            return self.df.iloc[indices[0][0]]["respuesta"]
+        except Exception as e:
+            raise RuntimeError(f"Error processing question: {str(e)}")
 
 
 # import re

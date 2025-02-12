@@ -4,3 +4,5 @@ joblib==1.1.0
 textblob==0.15.3
 gensim==4.3.2
 numpy==1.21.6
+flask==2.0.3
+flask_cors==3.0.10
